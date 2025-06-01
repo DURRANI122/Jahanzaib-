@@ -1,0 +1,72 @@
+CREATE TABLE universities (
+    id SERIAL PRIMARY KEY,
+    university TEXT,
+    university_shortname TEXT,
+    university_city TEXT
+);
+ 
+
+CREATE TABLE professors (
+    id SERIAL PRIMARY KEY,
+    firstname TEXT,
+    lastname TEXT,
+    university_id INT,
+    FOREIGN KEY (university_id) REFERENCES universities(id)
+);
+
+
+CREATE TABLE organizations (
+    id SERIAL PRIMARY KEY,
+    organization TEXT,
+    organization_sector TEXT
+);
+   
+
+
+CREATE TABLE affiliations (
+    id SERIAL PRIMARY KEY,
+    firstname TEXT,
+    lastname TEXT,
+    organization_id INT,
+    professor_id INT,
+    function TEXT,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id),
+    FOREIGN KEY (professor_id) REFERENCES professors(id)
+);
+INSERT INTO universities (university, university_shortname, university_city)
+SELECT DISTINCT university, university_shortname, university_city
+FROM university_professors;
+
+SELECT *
+FROM universities;
+
+INSERT INTO organizations (organization,organization_sector)
+SELECT DISTINCT organization,organization_sector
+FROM university_professors;
+
+SELECT *
+FROM organizations;
+
+
+INSERT INTO professors (firstname, lastname, university_id)
+SELECT up.firstname, up.lastname, u.id
+FROM university_professors up
+JOIN universities u
+  ON up.university = u.university
+ AND up.university_shortname = u.university_shortname
+ AND up.university_city = u.university_city;
+
+ SELECT *
+FROM professors;
+
+
+INSERT INTO affiliations (firstname, lastname, organization_id, professor_id, function)
+SELECT up.firstname, up.lastname, o.id, p.id, 'Professor'  -- You can replace 'Professor' with actual function if available
+FROM university_professors up
+JOIN professors p
+  ON up.firstname = p.firstname AND up.lastname = p.lastname
+JOIN organizations o
+  ON up.organization_sector = o.organization_sector;
+
+SELECT *
+FROM affiliations;
